@@ -3,7 +3,11 @@ export async function getArchivedUrl(url: string) {
   return archiveUrl(url, submitId);
 }
 
-const headers = { "User-Agent": "deno", Host: "archive.is" };
+const headers = {
+  Host: "archive.is",
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+};
 
 // getSubmitId makes a GET request to archive.is and extracts the submitid value
 async function getSubmitId() {
