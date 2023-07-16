@@ -6,8 +6,8 @@ export class ResponseError extends Error {
   status: number;
   headers: Headers;
 
-  constructor(private resp: Response, public body?: ResponseBody) {
-    super(`ResponseError (${resp.url})`);
+  constructor(resp: Response, public body?: ResponseBody) {
+    super(`ResponseError: ${resp.status} (${resp.url})`);
     this.name = "ResponseError";
     this.status = resp.status;
     this.headers = resp.headers;
