@@ -7,7 +7,8 @@ export async function getArchivedUrl(url: string) {
 async function getSubmitId() {
   const response = await fetch("https://archive.is");
   const body = await response.text();
-  const submitIdMatch = body.match(/name="submitid" value="(.*?)"/);
+  const submitIdMatch = body.match(/name="submitid"\s+value="(.*?)"/);
+  console.log(body);
   if (submitIdMatch && submitIdMatch[1]) {
     return submitIdMatch[1];
   } else {
