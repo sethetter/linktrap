@@ -1,18 +1,18 @@
+import { throwResponseError } from "./errors.ts";
+
 export async function getArchivedUrl(url: string) {
   const submitId = await getSubmitId();
   return archiveUrl(url, submitId);
 }
 
-const headers = {
-  Host: "archive.is",
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-};
+const headers = { "User-Agent": "deno", Host: "archive.is" };
 
 // getSubmitId makes a GET request to archive.is and extracts the submitid value
 async function getSubmitId() {
-  const response = await fetch("https://archive.is", { headers });
-  const body = await response.text();
+  const resp = await fetch("https://archive.is", { headers });
+  if (!resp.ok) await throwResponseError(resp);
+
+  const body = await resp.text();
 
   console.log("has submitid?: ", body.includes("submitid"));
 
@@ -27,21 +27,15 @@ async function getSubmitId() {
 // archiveUrl makes a POST request to archive.is/submit with the provided URL and submitid
 async function archiveUrl(url: string, submitid: string) {
   const params = new URLSearchParams({ url, anyway: "1", submitid });
-  const response = await fetch(
-    `https://archive.is/submit/?${params.toString()}`,
-    { headers }
-  );
+  const submitUrl = `https://archive.is/submit/?${params.toString()}`;
 
-  if (!response.ok) {
-    throw new Error(
-      `Request failed! (${response.status}) ${await response.text()}`
-    );
-  }
+  const resp = await fetch(submitUrl, { headers });
+  if (!resp.ok) await throwResponseError(resp);
 
-  const locationHeader = response.headers.get("location");
-  if (locationHeader) return response.headers.get("location");
+  const locationHeader = resp.headers.get("location");
+  if (locationHeader) return resp.headers.get("location");
 
-  const refreshHeader = response.headers.get("refresh");
+  const refreshHeader = resp.headers.get("refresh");
   if (refreshHeader) return refreshHeader.split(";url=")[1];
 
   throw new Error("No Location or refresh headers found");
