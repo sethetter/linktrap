@@ -10,8 +10,13 @@ router.get("/", async (context) => {
     return;
   }
 
-  const archivedUrl = await getArchivedUrl(targetUrl);
-  context.response.body = { archivedUrl };
+  try {
+    const archivedUrl = await getArchivedUrl(targetUrl);
+    context.response.body = { archivedUrl };
+  } catch (error) {
+    context.response.status = 500;
+    context.response.body = { error };
+  }
 });
 
 const app = new Application();
