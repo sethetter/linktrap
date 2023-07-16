@@ -10,19 +10,15 @@ async function getSubmitId() {
   const response = await fetch("https://archive.is", { headers });
   const body = await response.text();
 
-  console.log("has submitid?: ", body.includes("submitid"));
-
   const submitIdMatch = body.match(/name="submitid"\s+value="(.*?)"/);
-  if (submitIdMatch && submitIdMatch[1]) {
-    return submitIdMatch[1];
-  } else {
-    throw new Error("Could not find submitid");
-  }
+  if (submitIdMatch && submitIdMatch[1]) return submitIdMatch[1];
 }
 
 // archiveUrl makes a POST request to archive.is/submit with the provided URL and submitid
-async function archiveUrl(url: string, submitid: string) {
-  const params = new URLSearchParams({ url, anyway: "1", submitid });
+async function archiveUrl(url: string, submitId?: string) {
+  const params = new URLSearchParams({ url, anyway: "1" });
+  if (submitId) params.append("submitid", submitId);
+
   const response = await fetch(
     `https://archive.is/submit/?${params.toString()}`,
     { headers }
