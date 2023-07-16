@@ -3,12 +3,16 @@ export async function getArchivedUrl(url: string) {
   return archiveUrl(url, submitId);
 }
 
+const headers = { "User-Agent": "deno" };
+
 // getSubmitId makes a GET request to archive.is and extracts the submitid value
 async function getSubmitId() {
-  const response = await fetch("https://archive.is");
+  const response = await fetch("https://archive.is", { headers });
   const body = await response.text();
+
+  console.log("has submitid?: ", body.includes("submitid"));
+
   const submitIdMatch = body.match(/name="submitid"\s+value="(.*?)"/);
-  console.log(body);
   if (submitIdMatch && submitIdMatch[1]) {
     return submitIdMatch[1];
   } else {
@@ -19,11 +23,6 @@ async function getSubmitId() {
 // archiveUrl makes a POST request to archive.is/submit with the provided URL and submitid
 async function archiveUrl(url: string, submitid: string) {
   const params = new URLSearchParams({ url, anyway: "1", submitid });
-  const headers = {
-    "User-Agent": "node.js",
-    "Content-Type": "application/json",
-  };
-
   const response = await fetch(
     `https://archive.is/submit/?${params.toString()}`,
     { headers }
