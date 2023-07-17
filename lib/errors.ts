@@ -14,7 +14,12 @@ export class ResponseError extends Error {
   }
 }
 
-export async function throwResponseError(resp: Response, body?: ResponseBody) {
+export async function throwForStatus(
+  resp: Response,
+  body?: ResponseBody
+): Promise<Response> {
+  if (resp.ok) return resp;
+
   if (resp.bodyUsed) throw new ResponseError(resp, body);
   switch (resp.headers.get("content-type")) {
     case "application/json":
