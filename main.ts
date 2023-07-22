@@ -27,7 +27,7 @@ router.post("/twilio", async (context) => {
   const resp = new twilio.twiml.MessagingResponse();
 
   const body = await context.request.body()?.value;
-  const targetUrl = body.targetUrl;
+  const targetUrl = body.Body;
 
   try {
     const archivedUrl = await getArchivedUrl(targetUrl);

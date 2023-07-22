@@ -2,6 +2,8 @@ import { throwForStatus } from "./errors.ts";
 import { HttpsProxyAgent } from "npm:https-proxy-agent";
 
 export async function getArchivedUrl(url: string) {
+  console.log(`archiving url: ${url}`);
+
   const submitId = await getSubmitId();
   await new Promise((resolve) => setTimeout(resolve, 1000));
   return archiveUrl(url, submitId);
@@ -20,7 +22,7 @@ async function getSubmitId() {
   );
 
   const body = await resp.text();
-  console.log("has submitid: ", body.includes("submitid"));
+  console.log(`has submitid: ${body.includes("submitid")}`);
 
   const submitIdMatch = body.match(/name="submitid"\s+value="(.*?)"/);
   if (submitIdMatch && submitIdMatch[1]) {
