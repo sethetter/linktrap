@@ -1,15 +1,20 @@
 import { throwForStatus } from "./errors.ts";
+import { HttpsProxyAgent } from "npm:https-proxy-agent";
 
 export async function getArchivedUrl(url: string) {
   const submitId = await getSubmitId();
   return archiveUrl(url, submitId);
 }
 
-const headers = { "User-Agent": "deno", Host: "archive.is" };
+const proxyUrl = Deno.env.get("PROXY");
+const baseFetchOpts = {
+  headers: { "User-Agent": "deno", Host: "archive.is" },
+  ...(proxyUrl ? { agent: new HttpsProxyAgent(proxyUrl) } : {}),
+};
 
 // getSubmitId makes a GET request to archive.is and extracts the submitid value
 async function getSubmitId() {
-  const resp = await fetch("https://archive.is", { headers }).then(
+  const resp = await fetch("https://archive.is", baseFetchOpts).then(
     throwForStatus
   );
 
@@ -30,7 +35,7 @@ async function archiveUrl(url: string, submitid: string) {
   const params = new URLSearchParams({ url, anyway: "1", submitid });
   const submitUrl = `https://archive.is/submit/?${params.toString()}`;
 
-  const resp = await fetch(submitUrl, { headers }).then(throwForStatus);
+  const resp = await fetch(submitUrl, baseFetchOpts).then(throwForStatus);
 
   const locationHeader = resp.headers.get("location");
   if (locationHeader) return resp.headers.get("location");
