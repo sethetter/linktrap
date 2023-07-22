@@ -1,6 +1,10 @@
+import { load } from "https://deno.land/std/dotenv/mod.ts";
 import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { getArchivedUrl } from "./lib/archive_url.ts";
+import twilio from "npm:twilio";
+
+await load({ export: true });
 
 const router = new Router();
 router.get("/", async (context) => {
@@ -17,6 +21,26 @@ router.get("/", async (context) => {
     context.response.status = 500;
     context.response.body = { error };
   }
+});
+
+router.post("/twilio", async (context) => {
+  const resp = new twilio.twiml.MessagingResponse();
+
+  const body = await context.request.body()?.value;
+  const targetUrl = body.targetUrl;
+
+  try {
+    const archivedUrl = await getArchivedUrl(targetUrl);
+    if (!archivedUrl) throw new Error("Failed to get archived URL");
+
+    resp.message(archivedUrl);
+  } catch (e) {
+    console.error(e);
+    resp.message("Something went wrong!");
+  }
+
+  context.response.type = "text/xml";
+  context.response.body = resp.toString();
 });
 
 const app = new Application();
