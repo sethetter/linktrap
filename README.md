@@ -1,14 +1,13 @@
-# REST API
+# linktrap
 
-A template of REST API app using Oak framework
+Text a URL to the configured phone number, receive the archived version of that URL.
 
+## How it works
 
-Start the server with the command:
-
-```
-deno run --allow-net main.ts
-```
-
-This starts the server at http://localhost:8000/
-
-Try go to http://localhost:8000/api/Brachiosaurus or http://localhost:8000/api/
+- Twilio phone number hooked up to the `/twilio` endpoint.
+- List of allowed `from` numbers stored in redis.
+- The API endpoint..
+  - checks the `from` number is in the allow list,
+  - expects message content to be URLs intended for archiving,
+  - submits the URL to [archive.is](https://archive.is),
+  - then sends back the archived URL in the response.
