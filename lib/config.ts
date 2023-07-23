@@ -14,11 +14,11 @@ let _config: Config | undefined;
 export function config(): Config {
   if (_config) return _config;
 
-  _config = ConfigSchema.parse({
-    REDIS_URL: Deno.env.get("REDIS_URL"),
-    ADMIN_NUMBERS: Deno.env.get("ADMIN_NUMBERS"),
-    PROXY: Deno.env.get("PROXY"),
-  });
+  _config = ConfigSchema.parse(
+    Object.fromEntries(
+      ConfigSchema.keyof().options.map((k) => [k, Deno.env.get(k)])
+    )
+  );
 
   return _config;
 }
