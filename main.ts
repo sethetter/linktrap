@@ -41,6 +41,8 @@ router.post("/twilio", async (context) => {
   console.log(`received from ${from} (SID: ${msid}): ${body}`);
 
   if (!(await isAllowedFromNumber(from))) {
+    console.log(`number not in allowed list: ${from}`);
+
     context.response.status = 403;
     return;
   }
