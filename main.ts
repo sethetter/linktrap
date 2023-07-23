@@ -1,8 +1,9 @@
-import { load } from "https://deno.land/std/dotenv/mod.ts";
+import { load } from "https://deno.land/std@0.195.0/dotenv/mod.ts";
 import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { getArchivedUrl } from "./lib/archive_url.ts";
 import twilio from "npm:twilio";
+import { isAllowedFromNumber } from "./lib/auth.ts";
 
 await load({ export: true });
 
@@ -26,11 +27,26 @@ router.get("/", async (context) => {
 router.post("/twilio", async (context) => {
   const resp = new twilio.twiml.MessagingResponse();
 
-  const body = await context.request.body()?.value;
-  const targetUrl = body.Body;
+  const msg = new URLSearchParams(await context.request.body()?.value);
+
+  const from = msg.get("From");
+  const body = msg.get("Body");
+  const msid = msg.get("MessageSid");
+
+  if (!from || !body || !msid) {
+    context.response.status = 400;
+    return;
+  }
+
+  console.log(`received from ${from} (SID: ${msid}): ${body}`);
+
+  if (!(await isAllowedFromNumber(from))) {
+    context.response.status = 403;
+    return;
+  }
 
   try {
-    const archivedUrl = await getArchivedUrl(targetUrl);
+    const archivedUrl = await getArchivedUrl(body);
     if (!archivedUrl) throw new Error("Failed to get archived URL");
 
     resp.message(archivedUrl);
