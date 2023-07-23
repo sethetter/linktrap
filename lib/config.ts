@@ -1,10 +1,9 @@
 import { z } from "https://deno.land/x/zod@v3.21.4/mod.ts";
 
 const ConfigSchema = z.object({
-  UPSTASH_URL: z.string(),
-  UPSTASH_TOKEN: z.string(),
-  ADMIN_NUMBERS: z.string().transform((s) => s.split(",")),
   PROXY: z.string().optional(),
+  REDIS_URL: z.string(),
+  ADMIN_NUMBERS: z.string().transform((s) => s.split(",")),
 });
 
 type Config = z.infer<typeof ConfigSchema>;
