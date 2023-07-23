@@ -11,3 +11,10 @@ Text a URL to the configured phone number, receive the archived version of that 
   - expects message content to be URLs intended for archiving,
   - submits the URL to [archive.is](https://archive.is),
   - then sends back the archived URL in the response.
+
+## Secrets with git-crypt
+
+```
+$ mkdir -p .git/git-crypt/keys/
+$ op document get linktrap-git-crypt-key --out-file=.git/git-crypt/keys/default
+```
