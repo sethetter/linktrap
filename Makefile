@@ -1,3 +1,7 @@
+.PHONY: dev
+dev:
+	deno run --allow-net --allow-read --allow-env main.ts
+
 .PHONY: deploy
 deploy:
 	fly deploy
