@@ -3,7 +3,9 @@ import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { getArchivedUrl } from "./lib/archive_url.ts";
 import twilio from "npm:twilio";
-import { isAllowedFromNumber } from "./lib/auth.ts";
+import { isAdminNumber, isAllowedFromNumber } from "./lib/auth.ts";
+import { config } from "./lib/config.ts";
+import { addAllowedNumber } from "./lib/admin.ts";
 
 await load({ export: true });
 
@@ -40,21 +42,36 @@ router.post("/twilio", async (context) => {
 
   console.log(`received from ${from} (SID: ${msid}): ${body}`);
 
-  if (!(await isAllowedFromNumber(from))) {
-    console.log(`number not in allowed list: ${from}`);
+  // TODO: split these into separate handlers
+  if (body.toLowerCase().startsWith("add")) {
+    if (!isAdminNumber(from)) {
+      console.log(`number not in admin list: ${from}`);
+      context.response.status = 403;
+      return;
+    }
+    const newAllowedNumber = body.split(" ")[1];
+    if (!newAllowedNumber || newAllowedNumber.length < 10) {
+      resp.message("invalid number");
+    } else {
+      await addAllowedNumber(newAllowedNumber);
+      resp.message(`Added ${newAllowedNumber}`);
+    }
+  } else {
+    if (!(await isAllowedFromNumber(from))) {
+      console.log(`number not in allowed list: ${from}`);
+      context.response.status = 403;
+      return;
+    }
 
-    context.response.status = 403;
-    return;
-  }
+    try {
+      const archivedUrl = await getArchivedUrl(body);
+      if (!archivedUrl) throw new Error("Failed to get archived URL");
 
-  try {
-    const archivedUrl = await getArchivedUrl(body);
-    if (!archivedUrl) throw new Error("Failed to get archived URL");
-
-    resp.message(archivedUrl);
-  } catch (e) {
-    console.error(e);
-    resp.message("Something went wrong!");
+      resp.message(archivedUrl);
+    } catch (e) {
+      console.error(e);
+      resp.message("Something went wrong!");
+    }
   }
 
   context.response.type = "text/xml";

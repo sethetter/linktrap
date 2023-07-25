@@ -5,7 +5,11 @@ import {
 } from "https://deno.land/x/redis@v0.31.0/mod.ts";
 import { config } from "./config.ts";
 
-export const redisKey = (k: string) => `linktrap:${k}`;
+const redisKey = (k: string) => `linktrap:${k}`;
+
+export const redisKeys = {
+  allowedNumbers: redisKey("allowed_numbers"),
+};
 
 let _redis: Redis;
 export async function redis() {
