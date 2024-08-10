@@ -2,8 +2,7 @@ import { z } from "https://deno.land/x/zod@v3.21.4/mod.ts";
 
 const ConfigSchema = z.object({
   PROXY: z.string().optional(),
-  REDIS_URL: z.string(),
-  ADMIN_NUMBERS: z.string().transform((s) => s.split(",")),
+  SECRET_KEY: z.string(),
 });
 
 type Config = z.infer<typeof ConfigSchema>;
