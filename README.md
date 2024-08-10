@@ -1,13 +1,8 @@
 # linktrap
 
-Text a URL to the configured phone number, receive the archived version of that URL.
+A small API that takes a URL and returns an archived version of it.
 
 ## How it works
 
-- Twilio phone number hooked up to the `/twilio` endpoint.
-- List of allowed `from` numbers stored in redis.
-- The API endpoint..
-  - checks the `from` number is in the allow list,
-  - expects message content to be URLs intended for archiving,
-  - submits the URL to [archive.is](https://archive.is),
-  - then sends back the archived URL in the response.
+- `GET /?url=<the-url>` returns the archived URL.
+- `GET /?url=<the-url>&redirect=1` responds with a redirect to the archived URL.
